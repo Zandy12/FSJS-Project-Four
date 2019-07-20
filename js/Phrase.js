@@ -51,8 +51,6 @@ class Phrase {
         if (arg.className !==  `keyrow` && arg.className !==  `qwerty`) {
             arg.classList.toggle(`chosen`);
             arg.disabled = true;
-            // Credit: https://www.w3schools.com/jsref/prop_style_cursor.asp
-            arg.style.cursor = 'not-allowed';
         }
         let j = 0;
         while (j < window.arrayCheck.length) {

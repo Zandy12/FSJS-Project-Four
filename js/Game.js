@@ -12,24 +12,9 @@ class Game {
     * Begins game by getting random phrase, adding it to display, and enabling key interaction
     */
     startGame() {
-        // Credit: alan9595. Source: https://github.com/allan9595/oop_game-v2-treehouseTech/blob/master/js/Game.js
+        // Credit: alan9595. Source: https://github.com/allan9595/oop_game-v2-treehouseTech/blob/master/jsGame.js
         $("#overlay").hide();
-        if (window.lose) 
-            document.getElementsByClassName('lose')[0].className = 'start';
-            window.lose = false;
-        if (window.win) {
-            document.getElementsByClassName('win')[0].className = 'start'; 
-            window.win = false;
-        }
-        this.activePhrase = this.getRandomPhrase(); 
-        this.activePhrase.addPhraseToDisplay();
-        window.arrayCheck = this.activePhrase.phrase.split("").filter(arrayElement => arrayElement !== " ");
-        $('#qwerty').on('click', function(e) {
-            if (!active) {
-                active = true;
-                game.handleInteraction(e);
-            }
-        });
+        game.gameOver();
     }
     /**
      * Generates random phrase
@@ -53,8 +38,7 @@ class Game {
                 game.removeLife();
                 e.target.classList.toggle(`wrong`);
                 e.target.disabled = true;
-                // Credit: https://www.w3schools.com/jsref/prop_style_cursor.asp
-                e.target.style.cursor = 'not-allowed';
+                game.checkForWin();
             }
         }
     }
@@ -63,44 +47,18 @@ class Game {
     */
     checkForWin() {
         if (window.arrayCheck.length === 0) {
-            // Show win screen
-            document.getElementsByClassName('start')[0].className = 'win'; 
-            document.getElementsByClassName('title')[0].innerHTML = "YOU WIN!";
-            // Remove original phrase
-            document.getElementById('phrase').children[0].parentNode.removeChild(document.getElementById('phrase').children[0]);
-            document.getElementById('phrase').appendChild(document.createElement('ul'));
-            // Reset key classes
-            for (let i = 0; i < 3; i++) {
-                if (i === 0) {
-                    for (let j = 0; j < 10; j++) {
-                        document.getElementsByClassName('keyrow')[i].children[j].disabled = false;
-                        document.getElementsByClassName('keyrow')[i].children[j].removeAttribute('style');
-                        document.getElementsByClassName('keyrow')[i].children[j].className = 'key';
-                    }
-                }
-                if (i === 1) {
-                    for (let j = 0; j < 9; j++) {
-                        document.getElementsByClassName('keyrow')[i].children[j].disabled = false;
-                        document.getElementsByClassName('keyrow')[i].children[j].removeAttribute('style');
-                        document.getElementsByClassName('keyrow')[i].children[j].className = 'key';
-                    }
-                }
-                if (i === 2) {
-                    for (let j = 0; j < 7; j++) {
-                        document.getElementsByClassName('keyrow')[i].children[j].disabled = false;
-                        document.getElementsByClassName('keyrow')[i].children[j].removeAttribute('style');
-                        document.getElementsByClassName('keyrow')[i].children[j].className = 'key';
-                    }                   
-                }
-            }
-            // Reset hearts 
-            for (let i = 0 ; i < 5; i++) {
-                document.getElementById('scoreboard').children[0].children[i].children[0].src = 'images/liveHeart.png';
-            };
-            game.missed = 0;
-            $("#overlay").show();
-            window.win = true;
-
+            document.getElementById('game-over-message').textContent = 'YOU WIN!';
+            document.getElementById('overlay').classList.add('win');
+            document.getElementById('overlay').classList.remove('lose');
+            $('#overlay').show();
+            game.gameOver();
+        } 
+        if (this.missed === 5) {
+            document.getElementById('game-over-message').textContent = 'YOU LOSE!';
+            document.getElementById('overlay').classList.add('lose');
+            document.getElementById('overlay').classList.remove('win');
+            $('#overlay').show();
+            game.gameOver();
         }
     }
     /**
@@ -108,52 +66,30 @@ class Game {
     */
     removeLife() {
         document.getElementById('scoreboard').children[0].children[4-game.missed].children[0].src = 'images/lostHeart.png';
-        if (game.missed === 4) {
-            game.gameOver();
-        } else {
-            game.missed += 1;
-        }
+        game.missed += 1;
     }
     /**
     *   Declares to player that the game is lost and the board resets to default 
     */
     gameOver() {
-        // Show lose screen
-        document.getElementsByClassName('start')[0].className = 'lose'; 
-        document.getElementsByClassName('title')[0].innerHTML = "YOU LOSE!";
-        // Remove original phrase
-        document.getElementById('phrase').children[0].parentNode.removeChild(document.getElementById('phrase').children[0]);
-        document.getElementById('phrase').appendChild(document.createElement('ul'));
-        // Reset key classes
-        for (let i = 0; i < 3; i++) {
-            if (i === 0) {
-                for (let j = 0; j < 10; j++) {
-                    document.getElementsByClassName('keyrow')[i].children[j].disabled = false;
-                    document.getElementsByClassName('keyrow')[i].children[j].removeAttribute('style');
-                    document.getElementsByClassName('keyrow')[i].children[j].className = 'key';
-                }
-            }
-            if (i === 1) {
-                for (let j = 0; j < 9; j++) {
-                    document.getElementsByClassName('keyrow')[i].children[j].disabled = false;
-                    document.getElementsByClassName('keyrow')[i].children[j].removeAttribute('style');
-                    document.getElementsByClassName('keyrow')[i].children[j].className = 'key';
-                }
-            }
-            if (i === 2) {
-                for (let j = 0; j < 7; j++) {
-                    document.getElementsByClassName('keyrow')[i].children[j].disabled = false;
-                    document.getElementsByClassName('keyrow')[i].children[j].removeAttribute('style');
-                    document.getElementsByClassName('keyrow')[i].children[j].className = 'key';
-                }                   
+        // Credit: oculv21. Source: https://github.com/oculv21/OOP-Guessing-Game/tree/master/js
+        game.missed = 0;
+        const hearts = document.querySelectorAll('.tries img')
+        for (let h of hearts) {
+            h.setAttribute('src', 'images/liveHeart.png')
+        }
+        document.getElementById('phrase').innerHTML = '<ul></ul>';
+        this.activePhrase = this.getRandomPhrase();
+        this.activePhrase.addPhraseToDisplay();
+        const keys = document.getElementsByClassName('key');
+        for (let k of keys) {
+            k.removeAttribute('disabled');
+            if (k.classList.contains('chosen')) {
+                k.classList.remove('chosen')
+            } else if (k.classList.contains('wrong')) {
+                k.classList.remove('wrong');
             }
         }
-        // Reset hearts 
-        for (let i = 0 ; i < 5; i++) {
-            document.getElementById('scoreboard').children[0].children[i].children[0].src = 'images/liveHeart.png';
-        };
-        game.missed = 0;
-        $("#overlay").show();
-        window.lose = true; 
+        window.arrayCheck = this.activePhrase.phrase.split("").filter(arrayElement => arrayElement !== " ");
     }
 }   

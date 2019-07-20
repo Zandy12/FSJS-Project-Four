@@ -10,3 +10,7 @@
 document.getElementById('btn__reset').addEventListener('click', function() {
     game.startGame(); // displays the game page
 });
+
+$('#qwerty').on('click', function(e) {
+    game.handleInteraction(e);
+});
