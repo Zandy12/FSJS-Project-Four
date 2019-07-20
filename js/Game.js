@@ -12,7 +12,6 @@ class Game {
     * Begins game by getting random phrase, adding it to display, and enabling key interaction
     */
     startGame() {
-        // Credit: alan9595. Source: https://github.com/allan9595/oop_game-v2-treehouseTech/blob/master/jsGame.js
         $("#overlay").hide();
         game.gameOver();
     }
@@ -72,15 +71,13 @@ class Game {
     *   Declares to player that the game is lost and the board resets to default 
     */
     gameOver() {
-        // Credit: oculv21. Source: https://github.com/oculv21/OOP-Guessing-Game/tree/master/js
         game.missed = 0;
+        // Credit: oculv21. Source: https://github.com/oculv21/OOP-Guessing-Game/tree/master/js
         const hearts = document.querySelectorAll('.tries img')
         for (let h of hearts) {
             h.setAttribute('src', 'images/liveHeart.png')
         }
         document.getElementById('phrase').innerHTML = '<ul></ul>';
-        this.activePhrase = this.getRandomPhrase();
-        this.activePhrase.addPhraseToDisplay();
         const keys = document.getElementsByClassName('key');
         for (let k of keys) {
             k.removeAttribute('disabled');
@@ -90,6 +87,8 @@ class Game {
                 k.classList.remove('wrong');
             }
         }
+        this.activePhrase = this.getRandomPhrase();
+        this.activePhrase.addPhraseToDisplay();
         window.arrayCheck = this.activePhrase.phrase.split("").filter(arrayElement => arrayElement !== " ");
     }
 }   
