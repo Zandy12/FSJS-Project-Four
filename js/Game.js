@@ -3,17 +3,19 @@
  * Game.js */
 
 class Game {
-    constructor(missed, phrases, activePhrase) {
-        this.missed = missed;
+    constructor(phrases) {
+        this.missed = 0;
         this.phrases = phrases;
-        this.activePhrase = activePhrase;
+        this.activePhrase = null;
     }
     /**
     * Begins game by getting random phrase, adding it to display, and enabling key interaction
     */
     startGame() {
         $("#overlay").hide();
-        game.gameOver();
+        this.activePhrase = this.getRandomPhrase();
+        this.activePhrase.addPhraseToDisplay();
+        window.arrayCheck = this.activePhrase.phrase.split("").filter(arrayElement => arrayElement !== " ");
     }
     /**
      * Generates random phrase
@@ -30,47 +32,59 @@ class Game {
     handleInteraction(e) {
         let letterCheck = window.gamePhrase.checkLetter(e.target.innerHTML);
         if (letterCheck) {
+            if (e.target.className !==  `keyrow` && e.target.className !==  `qwerty`) {
+                e.target.classList.toggle(`chosen`);
+                e.target.disabled = true;
+            }
             gamePhrase.showMatchedLetter(e.target);
-            game.checkForWin();
         } else {
             if (e.target.className !==  `keyrow` && e.target.className !==  `section`) {
                 game.removeLife();
                 e.target.classList.toggle(`wrong`);
                 e.target.disabled = true;
-                game.checkForWin();
             }
+        }
+        if (game.checkForWin()) {
+            game.gameOver();
         }
     }
     /**
     * Method which checks if all letters in phrase are discovered
     */
     checkForWin() {
-        if (window.arrayCheck.length === 0) {
-            document.getElementById('game-over-message').textContent = 'YOU WIN!';
-            document.getElementById('overlay').classList.add('win');
-            document.getElementById('overlay').classList.remove('lose');
-            $('#overlay').show();
-            game.gameOver();
-        } 
-        if (this.missed === 5) {
-            document.getElementById('game-over-message').textContent = 'YOU LOSE!';
-            document.getElementById('overlay').classList.add('lose');
-            document.getElementById('overlay').classList.remove('win');
-            $('#overlay').show();
-            game.gameOver();
+        if (window.arrayCheck.length === 0 || game.missed === 5) {
+            return true;
         }
     }
     /**
     * Removes a life by changing image and incrementing `missed`
     */
     removeLife() {
-        document.getElementById('scoreboard').children[0].children[4-game.missed].children[0].src = 'images/lostHeart.png';
-        game.missed += 1;
+        if (game.missed <= 4) {
+            document.getElementById('scoreboard').children[0].children[4-game.missed].children[0].src = 'images/lostHeart.png';
+        }
+        if (game.missed === 5) {
+            game.gameOver();
+        } else {
+            game.missed += 1;
+        }
     }
     /**
     *   Declares to player that the game is lost and the board resets to default 
     */
     gameOver() {
+        if (game.checkForWin() && window.arrayCheck.length === 0) {
+            document.getElementById('game-over-message').textContent = 'YOU WIN!';
+            document.getElementById('overlay').classList.add('win');
+            document.getElementById('overlay').classList.remove('lose');
+            $('#overlay').show();
+        }
+        if (game.checkForWin() && game.missed === 5) {
+            document.getElementById('game-over-message').textContent = 'YOU LOSE!';
+            document.getElementById('overlay').classList.add('lose');
+            document.getElementById('overlay').classList.remove('win');
+            $('#overlay').show();
+        }
         game.missed = 0;
         // Credit: oculv21. Source: https://github.com/oculv21/OOP-Guessing-Game/tree/master/js
         const hearts = document.querySelectorAll('.tries img')
@@ -87,8 +101,5 @@ class Game {
                 k.classList.remove('wrong');
             }
         }
-        this.activePhrase = this.getRandomPhrase();
-        this.activePhrase.addPhraseToDisplay();
-        window.arrayCheck = this.activePhrase.phrase.split("").filter(arrayElement => arrayElement !== " ");
     }
 }   

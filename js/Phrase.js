@@ -48,10 +48,6 @@ class Phrase {
             letterToBeChanged[i].classList.toggle(`show`);
             i++;
         }
-        if (arg.className !==  `keyrow` && arg.className !==  `qwerty`) {
-            arg.classList.toggle(`chosen`);
-            arg.disabled = true;
-        }
         let j = 0;
         while (j < window.arrayCheck.length) {
             if (window.arrayCheck[j] === arg.innerHTML) { 
